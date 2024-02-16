@@ -40,7 +40,7 @@ jobs:
 
     needs: build
 
-    runs-on: : ubuntu-vm-node
+    runs-on: ubuntu-vm-node
 
     steps:
       - name: Docker Login
