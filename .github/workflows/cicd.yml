@@ -35,3 +35,27 @@ jobs:
 
     - name: Docker Push
       run: docker push ${{ vars.REGISTRY_URL }}/cicd:0.0.1
+
+  deploy:
+
+    needs: build
+
+    runs-on: : ubuntu-vm-node
+
+    steps:
+      - name: Docker Login
+        run: ssh server docker login ${{ vars.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_TOKEN }}
+
+      - name: Docker Pull
+        run: ssh server docker pull ${{ vars.REGISTRY_URL }}/cicd:0.0.1
+
+      - name: Docker Stop Old Container
+        run: ssh server docker stop cicd-server
+        continue-on-error: true
+
+      - name: Docker Remove Old Container
+        run: ssh server docker rm cicd-server
+        continue-on-error: true
+
+      - name: Docker Run container
+        run: ssh server docker run -d --restart unless-stopped --name cicd-server -p 3000:3000 ${{ vars.REGISTRY_URL }}/cicd:0.0.1
